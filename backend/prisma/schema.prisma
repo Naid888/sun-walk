@@ -1,3 +1,5 @@
+// schema.prisma
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -7,43 +9,40 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id         Int      @id @default(autoincrement())
-  telegramId String   @unique
-  clanId     Int?
-  isPremium  Boolean  @default(false)
-  coinsBuffer Int     @default(0)
-  coins      Int      @default(0)
-
-  referrerId Int?
-  referrer   User?    @relation("UserReferrals", fields: [referrerId], references: [id])
-  referred   User[]   @relation("UserReferrals")
-
-  stepsHistory  StepHistory[]
-  transactions  Transaction[]
-}
-
 model Clan {
-  id Int @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   name String @unique
   users User[]
 }
 
-model StepsHistory {
-  id Int @id @default(autoincrement())
-  userId Int
-  date DateTime
-  steps Int
+model User {
+  id           Int           @id @default(autoincrement())
+  telegramId   String        @unique
+  clanId       Int?
+  clan         Clan?         @relation(fields: [clanId], references: [id])
+  isPremium    Boolean       @default(false)
+  coinsBuffer  Int           @default(0)
+  coins        Int           @default(0)
+  referred     Int?
+  referrals    User[]        @relation("UserReferrals")
+  stepsHistory StepHistory[]
+  transactions Transaction[]
+}
+
+model StepHistory {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  date        DateTime @default(now())
+  steps       Int
   coinsEarned Int
-  user User @relation(fields: [userId], references: [id])
 }
 
 model Transaction {
-  id Int @id @default(autoincrement())
-  userId Int
-  type String
-  amount Int
-  description String
-  date DateTime @default(now())
-  user User @relation(fields: [userId], references: [id])
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  type        String
+  description String?
+  date        DateTime @default(now())
 }
