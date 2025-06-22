@@ -12,6 +12,7 @@ generator client {
 model Clan {
   id   Int    @id @default(autoincrement())
   name String @unique
+
   users User[]
 }
 
@@ -23,18 +24,21 @@ model User {
   isPremium    Boolean       @default(false)
   coinsBuffer  Int           @default(0)
   coins        Int           @default(0)
-  referred     Int?
+
+  referredId   Int?
+  referred     User?         @relation("UserReferrals", fields: [referredId], references: [id])
   referrals    User[]        @relation("UserReferrals")
+
   stepsHistory StepHistory[]
   transactions Transaction[]
 }
 
 model StepHistory {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  date        DateTime @default(now())
-  steps       Int
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime @default(now())
+  steps     Int
   coinsEarned Int
 }
 
