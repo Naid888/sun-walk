@@ -1,37 +1,29 @@
-import express from "express";
-import bodyParser from "body-parser";
-import { PrismaClient } from "@prisma/client";
-import TelegramBot from "node-telegram-bot-api";
-import userRoutes from "./routes/userRoutes.js";
-import stepsRoutes from "./routes/stepsRoutes.js";
-import coinsRoutes from "./routes/coinsRoutes.js";
+import TelegramBot from 'node-telegram-bot-api';
+import express from 'express';
 
 const app = express();
-const prisma = new PrismaClient();
-app.use(bodyParser.json());
 
-const bot = new TelegramBot(process.env.BOT_TOKEN);
-const WEBHOOK_URL = process.env.WEBHOOK_URL;
-bot.setWebHook(`${WEBHOOK_URL}/webhook`);
+const url = process.env.WEBHOOK_URL || 'https://sun-walk-production.up.railway.app';
 
-app.post("/webhook", (req, res) => {
+const bot = new TelegramBot('7495507261:AAHN4E13tby-RUuMGWCZLCyPrlIizMvG7NE', {
+  webHook: {
+    port: process.env.PORT || 8080
+  }
+});
+
+bot.setWebHook(`${url}/bot7495507261:AAHN4E13tby-RUuMGWCZLCyPrlIizMvG7NE`);
+
+app.use(express.json());
+
+app.post(`/bot7495507261:AAHN4E13tby-RUuMGWCZLCyPrlIizMvG7NE`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
-bot.onText(/\/start/, async (msg) => {
-  const chatId = msg.chat.id;
-  await prisma.user.upsert({
-    where: { telegramId: String(chatId) },
-    update: {},
-    create: { telegramId: String(chatId) }
-  });
-  bot.sendMessage(chatId, "👋 Привет! Открой Sun Walk Mini App: [Нажми](https://t.me/YOUR_BOT?startapp)", { parse_mode: "Markdown" });
+bot.onText(/\/start/, (msg) => {
+  bot.sendMessage(msg.chat.id, "Бот запущен и работает через Railway.");
 });
 
-app.use("/api/user", userRoutes);
-app.use("/api/steps", stepsRoutes);
-app.use("/api/coins", coinsRoutes);
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server running on ${PORT}`));
+app.listen(process.env.PORT || 8080, () => {
+  console.log(`Server running on ${process.env.PORT || 8080}`);
+});
