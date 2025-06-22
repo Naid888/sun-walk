@@ -6,28 +6,29 @@ const TOKEN = "7495507261:AAHN4E13tby-RUuMGWCZLCyPrlIizMvG7NE";
 const URL = "https://sun-walk-production.up.railway.app";
 const PORT = process.env.PORT || 8080;
 
-// Инициализация бота без polling
 const bot = new TelegramBot(TOKEN, { polling: false });
-
-// Инициализация сервера Express
 const app = express();
 app.use(bodyParser.json());
 
-// Маршрут для webhook Telegram
+// ✅ Здесь обрабатываем команду
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  bot.sendMessage(chatId, "Бот работает! ✅");
+});
+
+// ✅ Вебхук эндпоинт
 app.post(`/bot${TOKEN}`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
-// Запуск сервера и установка webhook
+// ✅ Запуск сервера и настройка вебхука
 app.listen(PORT, async () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`Server running on ${PORT}`);
   try {
-    const webhookUrl = `${URL}/bot${TOKEN}`;
-    const result = await bot.setWebHook(webhookUrl);
-    console.log(`✅ Webhook set to: ${webhookUrl}`);
-    console.log(`Telegram response: ${JSON.stringify(result)}`);
+    const res = await bot.setWebHook(`${URL}/bot${TOKEN}`);
+    console.log("Webhook set:", res);
   } catch (err) {
-    console.error("❌ Webhook setup failed:", err);
+    console.error("Webhook error:", err);
   }
 });
