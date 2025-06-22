@@ -8,18 +8,19 @@ generator client {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  telegramId String @unique
-  clanId Int?
-  clan Clan? @relation(fields: [clanId], references: [id])
-  isPremium Boolean @default(false)
-  steps Int @default(0)
-  coinsBuffer Int @default(0)
-  coins Int @default(0)
+  id         Int      @id @default(autoincrement())
+  telegramId String   @unique
+  clanId     Int?
+  isPremium  Boolean  @default(false)
+  coinsBuffer Int     @default(0)
+  coins      Int      @default(0)
+
   referrerId Int?
-  referred User[] @relation("UserReferrals")
-  transactions Transaction[]
-  stepsHistory StepsHistory[]
+  referrer   User?    @relation("UserReferrals", fields: [referrerId], references: [id])
+  referred   User[]   @relation("UserReferrals")
+
+  stepsHistory  StepHistory[]
+  transactions  Transaction[]
 }
 
 model Clan {
