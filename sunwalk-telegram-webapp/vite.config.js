@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   server: {
-    host: true
+    host: true,
   },
   preview: {
     host: true,
